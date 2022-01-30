@@ -38,6 +38,7 @@ var sudokuSolved = false;
 var solveAttempts = 0;
 var arbitarySelectionThreshold = 1; // Number of possible items in the list before the algorithm will choose an option
 var startSolveCommand = false;
+var firstSudokuSolveCycle = true;
 
 // Input Box class (for the numbers)
 function InputBox(x,y){
@@ -94,6 +95,10 @@ function NumberGrid(x,y){
 	this.x = x;
 	this.y = y;
 	this.numberGridArray = [];
+	this.selectedNumbersInRows = [];
+	this.selectedNumbersInColumns = [];
+	this.selectedNumbersInBlocks = [];
+	
 	for(let rowNum = 0; rowNum < 9; rowNum++){
 		let row = [];
 		for (let columnNum = 0; columnNum < 9; columnNum++){
@@ -102,6 +107,10 @@ function NumberGrid(x,y){
 			row.push(new InputBox(xPos, yPos));
 		}
 		this.numberGridArray.push(row);
+
+		this.selectedNumbersInRows.add(new Set());
+		this.selectedNumbersInColumns.add(new Set());
+		this.selectedNumbersInBlocks.add(new Set());
 	}
 	// Checks if the click happened inside one of the boxes
 	this.mouseClicked = function(x,y){
@@ -143,10 +152,6 @@ function NumberGrid(x,y){
 
 function solveSudoku(){
 	console.log('solveSudoku() called ',solveAttempts);
-	if (solveAttempts > SUDOKU_MAX_SOLVE_ATTEMPTS || sudokuSolved) {
-		startSolveCommand = false;
-		solveAttempts = 0;
-	}
 
 	// Helper function
 	function removeItemFromArray(arr, value) { // https://stackoverflow.com/questions/5767325/how-can-i-remove-a-specific-item-from-an-array
@@ -157,19 +162,24 @@ function solveSudoku(){
 		return arr;
 	}
 	let atLeastOneValueFoundThisCycle = false;
-	// Check rows for possible numbers
+	// Iterate through all elements (rows)
 	for(let rowNum = 0; rowNum < 9; rowNum++){
 		var availableNumbers = [1,2,3,4,5,6,7,8,9];
 		for (let columnNum = 0; columnNum < 9; columnNum++){
-			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){
+			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){ // this number has been selected
 				removeItemFromArray(availableNumbers, numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // remove any numbers that we know it can't be
-			}
-		}
-		for (let columnNum = 0; columnNum < 9; columnNum++){
-			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber === 0){
+				selectedNumbersInRows[rowNum].add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this row
+				selectedNumbersInColumns[columnNum].add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this column
+				selectedNumbersInBlocks[parseInt(rowNum)*3+parseInt(ColumnNum)].add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this 3x3 block
+			}else{ // This number is not yet selected
 				numberGrid.numberGridArray[rowNum][columnNum].possibleValues = availableNumbers.filter(value => numberGrid.numberGridArray[rowNum][columnNum].possibleValues.includes(value))
 				if (numberGrid.numberGridArray[rowNum][columnNum].possibleValues.length === 1){
 					numberGrid.numberGridArray[rowNum][columnNum].displayNumber = numberGrid.numberGridArray[rowNum][columnNum].possibleValues[0];
+				}
+				if (!firstSudokuSolveCycle){
+					numberGrid.numberGridArray[rowNum][columnNum].possibleValues.forEach(function(value,index){
+						//if (value) unique in col/row/block then set our displayNum to that
+					})
 				}
 			}
 		}
@@ -179,18 +189,15 @@ function solveSudoku(){
 	for(let columnNum = 0; columnNum < 9; columnNum++){
 		var availableNumbers = [1,2,3,4,5,6,7,8,9];
 		for (let rowNum = 0; rowNum < 9; rowNum++){
-			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){
+			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){ // this number has been selected
 				removeItemFromArray(availableNumbers, numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // remove any numbers that we know it can't be
-			}
-		}
-		for (let rowNum = 0; rowNum < 9; rowNum++){
-			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber === 0){
+				selectedNumbersInColumns.add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this row
+			}else{ // This number is not yet selected
 				numberGrid.numberGridArray[rowNum][columnNum].possibleValues = availableNumbers.filter(value => numberGrid.numberGridArray[rowNum][columnNum].possibleValues.includes(value))
 				if (numberGrid.numberGridArray[rowNum][columnNum].possibleValues.length === 1){
 					numberGrid.numberGridArray[rowNum][columnNum].displayNumber = numberGrid.numberGridArray[rowNum][columnNum].possibleValues[0];
 				}
 			}
-			
 		}
 	}
 
@@ -202,15 +209,10 @@ function solveSudoku(){
 			// go through each element of the 3x3 block
 			for(let columnNum = blockColumnNum*3; columnNum < blockColumnNum*3+3; columnNum++){
 				for (let rowNum = blockRowNum*3; rowNum < blockRowNum+3; rowNum++){
-					if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){
-						removeItemFromArray(availableNumbers, numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // remove any numbers that we know it can't be
-					}
-				}
-			}
-			for(let columnNum = blockColumnNum*3; columnNum < blockColumnNum*3+3; columnNum++){
-				for (let rowNum = blockRowNum*3; rowNum < blockRowNum*3+3; rowNum++){
 					//console.log("Row=",rowNum," Col=",columnNum)
-					if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber === 0){
+					if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){// this number has been selected
+						removeItemFromArray(availableNumbers, numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // remove any numbers that we know it can't be
+					}else{ // This number is not yet selected
 						numberGrid.numberGridArray[rowNum][columnNum].possibleValues = availableNumbers.filter(value => numberGrid.numberGridArray[rowNum][columnNum].possibleValues.includes(value))
 						if (numberGrid.numberGridArray[rowNum][columnNum].possibleValues.length === 1){
 							numberGrid.numberGridArray[rowNum][columnNum].displayNumber = numberGrid.numberGridArray[rowNum][columnNum].possibleValues[0];
@@ -263,6 +265,13 @@ function solveSudoku(){
 	}*/
 	//END TEMP
 	solveAttempts++;
+	firstSudokuSolveCycle = false;
+	if (solveAttempts > SUDOKU_MAX_SOLVE_ATTEMPTS || sudokuSolved) {
+		startSolveCommand = false;
+		solveAttempts = 0;
+		firstSudokuSolveCycle = true;
+		return;
+	}
 	//console.log("found?=",atLeastOneValueFoundThisCycle," th=",arbitarySelectionThreshold);
 }
 
