@@ -98,7 +98,11 @@ function NumberGrid(x,y){
 	this.selectedNumbersInRows = [];
 	this.selectedNumbersInColumns = [];
 	this.selectedNumbersInBlocks = [];
+	this.availableNumbersInRows = [];
+	this.availableNumbersInColumns = [];
+	this.availableNumbersInBlocks = [];
 	
+
 	for(let rowNum = 0; rowNum < 9; rowNum++){
 		let row = [];
 		for (let columnNum = 0; columnNum < 9; columnNum++){
@@ -108,9 +112,13 @@ function NumberGrid(x,y){
 		}
 		this.numberGridArray.push(row);
 
-		this.selectedNumbersInRows.add(new Set());
-		this.selectedNumbersInColumns.add(new Set());
-		this.selectedNumbersInBlocks.add(new Set());
+		this.selectedNumbersInRows.push(new Set());
+		this.selectedNumbersInColumns.push(new Set());
+		this.selectedNumbersInBlocks.push(new Set());
+
+		this.availableNumbersInRows.push([]);
+		this.availableNumbersInColumns.push([]);
+		this.availableNumbersInBlocks.push([]);
 	}
 	// Checks if the click happened inside one of the boxes
 	this.mouseClicked = function(x,y){
@@ -147,6 +155,10 @@ function NumberGrid(x,y){
 		line(SUDOKU_SQUARE_SIZE*0+x, SUDOKU_SQUARE_SIZE*6+y, SUDOKU_SQUARE_SIZE*9+x, SUDOKU_SQUARE_SIZE*6+y); // horizontal line bottom
 
 	};
+	this.getAssociatedBlock = function(rowNum, colNum){
+		// returns the associated 3x3 block with that row and column
+		return parseInt(parseInt(rowNum/3) * 3) + parseInt((colNum)/3);
+	}
 	
 };
 
@@ -161,25 +173,97 @@ function solveSudoku(){
 		}
 		return arr;
 	}
+	// Helper function
+	function removeAllItemFromArray(arr, value) { // https://stackoverflow.com/questions/5767325/how-can-i-remove-a-specific-item-from-an-array
+		var i = 0;
+		while (i < arr.length) {
+			if (arr[i] === value) {
+			arr.splice(i, 1);
+			} else {
+			++i;
+			}
+		}
+		return arr;
+	}
+
 	let atLeastOneValueFoundThisCycle = false;
 	// Iterate through all elements (rows)
 	for(let rowNum = 0; rowNum < 9; rowNum++){
 		var availableNumbers = [1,2,3,4,5,6,7,8,9];
 		for (let columnNum = 0; columnNum < 9; columnNum++){
+			//console.log("Row=",rowNum," Col=",columnNum)
+			//console.log(numberGrid.getAssociatedBlock(rowNum,columnNum))
 			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){ // this number has been selected
-				removeItemFromArray(availableNumbers, numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // remove any numbers that we know it can't be
-				selectedNumbersInRows[rowNum].add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this row
-				selectedNumbersInColumns[columnNum].add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this column
-				selectedNumbersInBlocks[parseInt(rowNum)*3+parseInt(ColumnNum)].add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this 3x3 block
+				// Remove all copies of this number
+				let currentNum = numberGrid.numberGridArray[rowNum][columnNum].displayNumber;
+				removeAllItemFromArray(numberGrid.availableNumbersInBlocks[numberGrid.getAssociatedBlock(rowNum,columnNum)], currentNum);
+				removeAllItemFromArray(numberGrid.availableNumbersInColumns[columnNum], currentNum);
+				removeAllItemFromArray(numberGrid.availableNumbersInRows[rowNum], currentNum);
+
+				numberGrid.selectedNumbersInRows[rowNum].add(currentNum); // Add to Set of numbers we've seen in this row
+				numberGrid.selectedNumbersInColumns[columnNum].add(currentNum); // Add to Set of numbers we've seen in this column
+				//console.log("Row=",rowNum," Col=",columnNum)
+				//console.log(parseInt(parseInt(rowNum/3)+parseInt(columnNum/3)))
+				numberGrid.selectedNumbersInBlocks[numberGrid.getAssociatedBlock(rowNum,columnNum)].add(currentNum); // Add to Set of numbers we've seen in this 3x3 block
 			}else{ // This number is not yet selected
 				numberGrid.numberGridArray[rowNum][columnNum].possibleValues = availableNumbers.filter(value => numberGrid.numberGridArray[rowNum][columnNum].possibleValues.includes(value))
 				if (numberGrid.numberGridArray[rowNum][columnNum].possibleValues.length === 1){
-					numberGrid.numberGridArray[rowNum][columnNum].displayNumber = numberGrid.numberGridArray[rowNum][columnNum].possibleValues[0];
+					let value = numberGrid.numberGridArray[rowNum][columnNum].possibleValues[0];
+					numberGrid.numberGridArray[rowNum][columnNum].displayNumber = value;
+					numberGrid.numberGridArray[rowNum][columnNum].possibleValues.forEach(function(possibleValue,index){ // Remove all possible values that this now known square could have had
+						removeItemFromArray(numberGrid.availableNumbersInBlocks[numberGrid.getAssociatedBlock(rowNum,columnNum)], value);
+						removeItemFromArray(numberGrid.availableNumbersInColumns[columnNum], value);
+						removeItemFromArray(numberGrid.availableNumbersInRows[rowNum], value);
+					});
 				}
-				if (!firstSudokuSolveCycle){
-					numberGrid.numberGridArray[rowNum][columnNum].possibleValues.forEach(function(value,index){
+
+				if (firstSudokuSolveCycle){
+					numberGrid.numberGridArray[rowNum][columnNum].possibleValues.forEach(function(availableNumber,index){
+						numberGrid.availableNumbersInRows[rowNum].push(availableNumber);
+						numberGrid.availableNumbersInColumns[columnNum].push(availableNumber);
+						numberGrid.availableNumbersInBlocks[numberGrid.getAssociatedBlock(rowNum,columnNum)].push(availableNumber);
+					});
+					
+				}else{
+					numberGrid.numberGridArray[rowNum][columnNum].possibleValues.forEach(function(possibleValue,index){
+						//if (possibleValue) unique in col/row/block then set our displayNum to that
+						if (numberGrid.availableNumbersInRows[rowNum].filter(x => x==possibleValue).length === 1
+						|| numberGrid.availableNumbersInColumns[columnNum].filter(x => x==possibleValue).length === 1
+						|| numberGrid.availableNumbersInBlocks[numberGrid.getAssociatedBlock(rowNum,columnNum)].filter(x => x==possibleValue).length === 1
+						){
+							numberGrid.numberGridArray[rowNum][columnNum].displayNumber = possibleValue;
+							numberGrid.numberGridArray[rowNum][columnNum].possibleValues.forEach(function(possibleValue,index){ // Remove all possible values that this now known square could have had
+								removeItemFromArray(numberGrid.availableNumbersInBlocks[numberGrid.getAssociatedBlock(rowNum,columnNum)], possibleValue);
+								removeItemFromArray(numberGrid.availableNumbersInColumns[columnNum], possibleValue);
+								removeItemFromArray(numberGrid.availableNumbersInRows[rowNum], possibleValue);
+							});
+							console.log('triggered!')
+							// currently triggers way too much. Need to have a way to check if value is unique, not just exists
+							/*
+							Have an array for each block/row/col and add multiple copies of possible values to it the first time through all the possible values
+							On subsequent iterations, remove all of one number if it's in the selected Set.
+							Then we can check for uniqueness
+							*/
+						}
+					});
+
+					/*numberGrid.numberGridArray[rowNum][columnNum].possibleValues.forEach(function(value,index){
 						//if (value) unique in col/row/block then set our displayNum to that
-					})
+						if (!numberGrid.selectedNumbersInRows[rowNum].has(value)
+						|| !numberGrid.selectedNumbersInColumns[columnNum].has(value)
+						|| !numberGrid.selectedNumbersInBlocks[numberGrid.getAssociatedBlock(rowNum,columnNum)].has(value)
+						){
+							numberGrid.numberGridArray[rowNum][columnNum].displayNumber = value;
+							console.log('triggered!')
+							// currently triggers way too much. Need to have a way to check if value is unique, not just exists
+							
+							//Have an array for each block/row/col and add multiple copies of possible values to it the first time through all the possible values
+							//On subsequent iterations, remove all of one number if it's in the selected Set.
+							//Then we can check for uniqueness
+							
+						}
+					});
+					*/
 				}
 			}
 		}
@@ -191,7 +275,7 @@ function solveSudoku(){
 		for (let rowNum = 0; rowNum < 9; rowNum++){
 			if(numberGrid.numberGridArray[rowNum][columnNum].displayNumber != 0){ // this number has been selected
 				removeItemFromArray(availableNumbers, numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // remove any numbers that we know it can't be
-				selectedNumbersInColumns.add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this row
+				//selectedNumbersInColumns.add(numberGrid.numberGridArray[rowNum][columnNum].displayNumber); // Add to Set of numbers we've seen in this row
 			}else{ // This number is not yet selected
 				numberGrid.numberGridArray[rowNum][columnNum].possibleValues = availableNumbers.filter(value => numberGrid.numberGridArray[rowNum][columnNum].possibleValues.includes(value))
 				if (numberGrid.numberGridArray[rowNum][columnNum].possibleValues.length === 1){
