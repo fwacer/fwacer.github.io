@@ -12,6 +12,9 @@ Note: Trademark belongs to Niricson Software Inc.
     --niricson-foreground-color: white;
     --niricson-background-color: black;
 }
+html{
+    font-size: 32px;
+}
 footer{
     font-family: 'Courier New', Courier, monospace;
     font-style: italic;
