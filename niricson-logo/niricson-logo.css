@@ -1,0 +1,47 @@
+/*
+Author: Bryce Dombrowski
+Date: 2022-11-25
+License: See license file
+
+Note: Trademark belongs to Niricson Software Inc.
+*/
+:root{
+    --niricson-orange: #ffa618;
+    --niricson-gray: #141414;
+    --niricson-logo-font: 'Josefin Sans', sans-serif;
+    --niricson-foreground-color: white;
+    --niricson-background-color: black;
+}
+footer{
+    font-family: 'Courier New', Courier, monospace;
+    font-style: italic;
+    font-size: 0.5em;
+}
+.logo-splat{
+    width: inherit;
+    height: 7em;
+    text-align: center;
+    /*border: 1px dashed var(--niricson-foreground-color);*/
+    color: var(--niricson-foreground-color);
+}
+.logo-text{
+    width: inherit;
+    height: 1.5em;
+    font-family: var(--niricson-logo-font);
+    font-size:1.3em;
+    text-align: center;
+    line-height: 50%;
+    /*border: 1px dashed var(--niricson-foreground-color);*/
+    color: var(--niricson-foreground-color);
+    padding-top: 0.75em;
+    padding-bottom: 0em;
+}
+.logo-frame{
+    position:sticky;
+    font-size: 2em;
+    /*border: 1px dotted var(--niricson-foreground-color);*/
+    padding: 1%;
+    background-color: var(--niricson-background-color);
+    width: 10em;
+}
+

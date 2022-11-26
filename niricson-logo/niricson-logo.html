@@ -1,0 +1,39 @@
+<!--
+Author: Bryce Dombrowski
+Date: 2022-11-25
+License: See license file
+
+Note: Trademark belongs to Niricson Software Inc.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="niricson-logo.css">
+    <title>Niricson Logo Animation</title>
+    <script src="./lib/p5JS/p5.min.js"></script>
+    <!-- <script src="./addons/p5.sound.js"></script> -->
+    <script src="./lib/SimplexNoiseJS/simplexNoise.js"></script>
+    <script src="./niricson-logo.js"></script>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300&display=swap');
+    </style>
+</head>
+<body>
+    <div id="logo-frame" class="logo-frame"><div id="logo-splat" class="logo-splat"></div><div id='logo-text' class='logo-text'>NIRICSON</div></div>
+    <br><br>
+    <label for="animation-selection">Animation Type:</label>
+    <select name="animation-selection" id="animation-selection">
+        <option value="none">None</option>
+        <option value="ripple">Ripple</option>
+        <option value="wave">Wave</option>
+    </select>
+    <br><br>
+</body>
+<footer>
+    All trademarks are owned by Niricson Software Inc.<br>
+    This animation and all associated code is original work by Bryce Dombrowski.
+</footer>
+</html>
