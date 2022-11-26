@@ -47,7 +47,6 @@ function setup() {
 
 function draw() {
     background(backgroundColour);
-    let canvasDiv = document.getElementById('logo-frame');
     if (devMode){
         draw_numbers() // Temporary, helper to show grid
     }
@@ -160,8 +159,6 @@ function createSplat(){
             circlesList.push(new Circle((local_col+centreOfSplatX)*linesToEmRatio, row*linesToEmRatio, sizeRatio));// + sizeRatio*0.3*openSimplex.noise2D(local_col, row)));
         }
     }
-    
-
 }
 
 function drawSplat(){
@@ -205,6 +202,6 @@ function windowResized(){
     // Fill to size of div
     let canvasDiv = document.getElementById('logo-splat');
     resizeCanvas(canvasDiv.offsetWidth,canvasDiv.offsetHeight);
+    
     size_1em = canvasDiv.offsetWidth/emFromCanvasWidthRatio;
 }
-
