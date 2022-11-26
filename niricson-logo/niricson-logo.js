@@ -37,15 +37,16 @@ function setup() {
     sketchCanvas.parent('logo-splat');
 
     size_1em = canvasDiv.offsetWidth/emFromCanvasWidthRatio;
-    
     openSimplex = openSimplexNoise(noiseSeedInput);
-    foregroundColour = window.getComputedStyle(document.getElementById('logo-splat')).color;
-    backgroundColour = window.getComputedStyle(document.getElementById('logo-frame')).backgroundColor;
+
     createSplat();
 }
 
 
 function draw() {
+    updateTheme();
+    foregroundColour = window.getComputedStyle(document.getElementById('logo-splat')).color;
+    backgroundColour = window.getComputedStyle(document.getElementById('logo-frame')).backgroundColor;
     background(backgroundColour);
     if (devMode){
         draw_numbers() // Temporary, helper to show grid
@@ -196,6 +197,22 @@ function drawSplat(){
         circlesList[i].draw(animationOptions[animationSelection]);
     }
     animationTimeIndex++;
+}
+
+function updateTheme(){
+    // Change theme on command
+    let themeSelection =  document.getElementById('theme-selection').value;
+    if (themeSelection == "dark"){
+        document.documentElement.style
+        .setProperty('--niricson-foreground-colour', 'white');
+        document.documentElement.style
+        .setProperty('--niricson-background-colour', 'black');
+    }else{
+        document.documentElement.style
+        .setProperty('--niricson-foreground-colour', 'black');
+        document.documentElement.style
+        .setProperty('--niricson-background-colour', 'white');
+    }
 }
 
 function windowResized(){

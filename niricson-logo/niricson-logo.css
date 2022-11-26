@@ -9,7 +9,7 @@ Note: Trademark belongs to Niricson Software Inc.
     --niricson-orange: #ffa618;
     --niricson-gray: #141414;
     --niricson-logo-font: 'Josefin Sans', sans-serif;
-    --niricson-foreground-color: white;
+    --niricson-foreground-colour: white;
     --niricson-background-color: black;
 }
 html{
@@ -24,8 +24,8 @@ footer{
     width: inherit;
     height: 7em;
     text-align: center;
-    /*border: 1px dashed var(--niricson-foreground-color);*/
-    color: var(--niricson-foreground-color);
+    /*border: 1px dashed var(--niricson-foreground-colour);*/
+    color: var(--niricson-foreground-colour);
 }
 .logo-text{
     width: inherit;
@@ -34,17 +34,17 @@ footer{
     font-size:1.3em;
     text-align: center;
     line-height: 50%;
-    /*border: 1px dashed var(--niricson-foreground-color);*/
-    color: var(--niricson-foreground-color);
+    /*border: 1px dashed var(--niricson-foreground-colour);*/
+    color: var(--niricson-foreground-colour);
     padding-top: 0.75em;
     padding-bottom: 0em;
 }
 .logo-frame{
     position:sticky;
     font-size: 2em;
-    /*border: 1px dotted var(--niricson-foreground-color);*/
+    /*border: 1px dotted var(--niricson-foreground-colour);*/
     padding: 1%;
-    background-color: var(--niricson-background-color);
+    background-color: var(--niricson-background-colour);
     width: 10em;
 }
 
