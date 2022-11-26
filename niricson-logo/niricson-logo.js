@@ -207,7 +207,7 @@ function updateTheme(){
         .setProperty('--niricson-foreground-colour', 'white');
         document.documentElement.style
         .setProperty('--niricson-background-colour', 'black');
-    }else{
+    }else if (themeSelection == "light"){
         document.documentElement.style
         .setProperty('--niricson-foreground-colour', 'black');
         document.documentElement.style
