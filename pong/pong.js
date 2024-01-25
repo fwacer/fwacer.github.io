@@ -190,7 +190,8 @@ function GraphicsItems(items){
 };
 
 function setup() {
-	createCanvas(windowWidth - 4, windowHeight - 4);
+	let window_header_size = 62.5+18.5;
+	createCanvas(windowWidth - 4, windowHeight - 4 - window_header_size);
 	background(50, 89, 100);
 	
 	HORIZONTAL_BALL_START_SPEED = windowWidth / 170;
